@@ -1,0 +1,42 @@
+﻿@model Multikino.Models.View.ScreeningCreateViewModel
+
+<h2>Dodaj seans</h2>
+
+<form asp-action="CreateScreening" method="post">
+    <div class="form-group">
+        <label class="control-label">Film</label>
+        <select asp-for="MovieId" asp-items="Model.MovieOptions" class="form-control"></select>
+        <span asp-validation-for="MovieId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Sala</label>
+        <select asp-for="HallId" asp-items="Model.HallOptions" class="form-control"></select>
+        <span asp-validation-for="HallId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartTime" class="control-label"></label>
+        <input asp-for="StartTime" class="form-control" type="datetime-local"
+               value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Language" class="control-label"></label>
+        <input asp-for="Language" class="form-control" />
+        <span asp-validation-for="Language" class="text-danger"></span>
+    </div>
+
+    <div class="form-check">
+        <input asp-for="Is3D" class="form-check-input" />
+        <label asp-for="Is3D" class="form-check-label"></label>
+    </div>
+
+    <div class="text-danger">
+        @Html.ValidationSummary()
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Zapisz</button>
+    <a asp-action="Index" class="btn btn-secondary mt-2">Powrót</a>
+</form>

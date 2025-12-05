@@ -1,0 +1,25 @@
+﻿@model Multikino.Models.Screening
+
+<h2>Szczegóły seansu</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Film</dt>
+    <dd class="col-sm-10">@Model.Movie?.Title</dd>
+
+    <dt class="col-sm-2">Sala</dt>
+    <dd class="col-sm-10">@Model.Hall?.Name</dd>
+
+    <dt class="col-sm-2">Data i godzina</dt>
+    <dd class="col-sm-10">@Model.StartTime</dd>
+
+    <dt class="col-sm-2">Język</dt>
+    <dd class="col-sm-10">@Model.Language</dd>
+
+    <dt class="col-sm-2">3D</dt>
+    <dd class="col-sm-10">@(Model.Is3D ? "Tak" : "Nie")</dd>
+</dl>
+
+<p>
+    <a asp-action="EditScreening" asp-route-id="@Model.Id" class="btn btn-primary">Edytuj</a>
+    <a asp-action="Index" class="btn btn-secondary">Powrót</a>
+</p>

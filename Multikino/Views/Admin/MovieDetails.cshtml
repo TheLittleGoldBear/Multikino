@@ -1,0 +1,25 @@
+﻿@model Multikino.Models.Movie
+
+<h2>Szczegóły filmu</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Tytuł</dt>
+    <dd class="col-sm-10">@Model.Title</dd>
+
+    <dt class="col-sm-2">Opis</dt>
+    <dd class="col-sm-10">@Model.Description</dd>
+
+    <dt class="col-sm-2">Czas trwania</dt>
+    <dd class="col-sm-10">@Model.DurationMin min</dd>
+
+    <dt class="col-sm-2">Data premiery</dt>
+    <dd class="col-sm-10">@Model.ReleaseDate?.ToShortDateString()</dd>
+
+    <dt class="col-sm-2">Cena bazowa</dt>
+    <dd class="col-sm-10">@Model.BasePrice.ToString("0.00") zł</dd>
+</dl>
+
+<p>
+    <a asp-action="EditMovie" asp-route-id="@Model.Id" class="btn btn-primary">Edytuj</a>
+    <a asp-action="Index" class="btn btn-secondary">Powrót</a>
+</p>

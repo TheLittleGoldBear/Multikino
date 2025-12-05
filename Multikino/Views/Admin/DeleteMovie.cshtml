@@ -1,0 +1,18 @@
+﻿@model Multikino.Models.Movie
+
+<h2>Usuń film</h2>
+
+<p>Czy na pewno chcesz usunąć ten film?</p>
+
+<dl class="row">
+    <dt class="col-sm-2">Tytuł</dt>
+    <dd class="col-sm-10">@Model.Title</dd>
+    <dt class="col-sm-2">Cena bazowa</dt>
+    <dd class="col-sm-10">@Model.BasePrice.ToString("0.00") zł</dd>
+</dl>
+
+<form asp-action="DeleteMovie" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

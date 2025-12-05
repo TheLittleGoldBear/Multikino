@@ -1,0 +1,22 @@
+﻿@model Multikino.Models.Screening
+
+<h2>Usuń seans</h2>
+
+<p>Czy na pewno chcesz usunąć ten seans?</p>
+
+<dl class="row">
+    <dt class="col-sm-2">Film</dt>
+    <dd class="col-sm-10">@Model.Movie?.Title</dd>
+
+    <dt class="col-sm-2">Sala</dt>
+    <dd class="col-sm-10">@Model.Hall?.Name</dd>
+
+    <dt class="col-sm-2">Data</dt>
+    <dd class="col-sm-10">@Model.StartTime</dd>
+</dl>
+
+<form asp-action="DeleteScreening" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

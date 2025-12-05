@@ -1,0 +1,198 @@
+﻿@model Multikino.Models.View.AdminDashboardViewModel
+
+<h2>Panel administratora</h2>
+
+<p>
+    <a asp-action="CreateMovie" class="btn btn-primary">Dodaj film</a>
+    <a asp-action="CreateScreening" class="btn btn-secondary">Dodaj seans</a>
+</p>
+
+<hr />
+<h3>Filmy</h3>
+
+<form method="get" class="row mb-2">
+    <div class="col-sm-4">
+        <input type="text"
+               name="movieSearch"
+               value="@Model.MovieSearch"
+               class="form-control"
+               placeholder="Szukaj po tytule..." />
+    </div>
+    <div class="col-sm-2">
+        <button type="submit" class="btn btn-outline-primary">Filtruj</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-movieSortOrder="@ViewBag.MovieTitleSort"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-hallSearch="@Model.HallSearch"
+                   asp-route-screeningSearch="@Model.ScreeningSearch">
+                    Tytuł
+                </a>
+            </th>
+            <th>Czas [min]</th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-movieSortOrder="@ViewBag.MoviePriceSort"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-hallSearch="@Model.HallSearch"
+                   asp-route-screeningSearch="@Model.ScreeningSearch">
+                    Cena bazowa
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-movieSortOrder="@ViewBag.MovieReleaseSort"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-hallSearch="@Model.HallSearch"
+                   asp-route-screeningSearch="@Model.ScreeningSearch">
+                    Data premiery
+                </a>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Model.Movies)
+        {
+            <tr>
+                <td>@m.Title</td>
+                <td>@m.DurationMin</td>
+                <td>@m.BasePrice.ToString("0.00")</td>
+                <td>@m.ReleaseDate?.ToShortDateString()</td>
+                <td>
+                    <a asp-action="MovieDetails" asp-route-id="@m.Id" class="btn btn-sm btn-info">Szczegóły</a>
+                    <a asp-action="EditMovie" asp-route-id="@m.Id" class="btn btn-sm btn-primary">Edytuj</a>
+                    <a asp-action="DeleteMovie" asp-route-id="@m.Id" class="btn btn-sm btn-danger">Usuń</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+<h3>Sale kinowe</h3>
+
+<form method="get" class="row mb-2">
+    <div class="col-sm-4">
+        <input type="text"
+               name="hallSearch"
+               value="@Model.HallSearch"
+               class="form-control"
+               placeholder="Szukaj po nazwie..." />
+    </div>
+    <div class="col-sm-2">
+        <button type="submit" class="btn btn-outline-primary">Filtruj</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-hallSortOrder="@ViewBag.HallNameSort"
+                   asp-route-hallSearch="@Model.HallSearch"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-screeningSearch="@Model.ScreeningSearch">
+                    Nazwa
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-hallSortOrder="@ViewBag.HallCapacitySort"
+                   asp-route-hallSearch="@Model.HallSearch"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-screeningSearch="@Model.ScreeningSearch">
+                    Pojemność
+                </a>
+            </th>
+            <th>3D</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var h in Model.Halls)
+        {
+            <tr>
+                <td>@h.Name</td>
+                <td>@h.Capacity</td>
+                <td>@(h.Is3D ? "Tak" : "Nie")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+<h3>Seanse</h3>
+
+<form method="get" class="row mb-2">
+    <div class="col-sm-4">
+        <input type="text"
+               name="screeningSearch"
+               value="@Model.ScreeningSearch"
+               class="form-control"
+               placeholder="Szukaj po filmie / sali / języku..." />
+    </div>
+    <div class="col-sm-2">
+        <button type="submit" class="btn btn-outline-primary">Filtruj</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-screeningSortOrder="@ViewBag.ScreeningMovieSort"
+                   asp-route-screeningSearch="@Model.ScreeningSearch"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-hallSearch="@Model.HallSearch">
+                    Film
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-screeningSortOrder="@ViewBag.ScreeningHallSort"
+                   asp-route-screeningSearch="@Model.ScreeningSearch"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-hallSearch="@Model.HallSearch">
+                    Sala
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-screeningSortOrder="@ViewBag.ScreeningDateSort"
+                   asp-route-screeningSearch="@Model.ScreeningSearch"
+                   asp-route-movieSearch="@Model.MovieSearch"
+                   asp-route-hallSearch="@Model.HallSearch">
+                    Data
+                </a>
+            </th>
+            <th>Język</th>
+            <th>3D</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.Screenings)
+        {
+            <tr>
+                <td>@s.Movie?.Title</td>
+                <td>@s.Hall?.Name</td>
+                <td>@s.StartTime</td>
+                <td>@s.Language</td>
+                <td>@(s.Is3D ? "Tak" : "Nie")</td>
+                <td>
+                    <a asp-action="ScreeningDetails" asp-route-id="@s.Id" class="btn btn-sm btn-info">Szczegóły</a>
+                    <a asp-action="EditScreening" asp-route-id="@s.Id" class="btn btn-sm btn-primary">Edytuj</a>
+                    <a asp-action="DeleteScreening" asp-route-id="@s.Id" class="btn btn-sm btn-danger">Usuń</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
