@@ -52,7 +52,6 @@ namespace Multikino.Controllers
                 return View(model);
             }
 
-            // Claimy – rola z pola user.Role (Admin / Client)
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -68,7 +67,12 @@ namespace Multikino.Controllers
             if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                 return Redirect(model.ReturnUrl);
 
-            return RedirectToAction("Index", "Home");
+            if (user.Role == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
+            return RedirectToAction("Dashboard", "Home");
         }
 
         [HttpGet]
