@@ -1,0 +1,45 @@
+﻿@model Multikino.Models.View.UserTicketsViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Moje bilety";
+}
+
+<h1 class="mb-4">Moje bilety</h1>
+
+@if (!Model.Tickets.Any())
+{
+    <div class="alert alert-info">
+        Nie masz jeszcze żadnych zakupionych biletów. <a asp-controller="Screenings" asp-action="Index">Sprawdź seanse</a>.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Film</th>
+                    <th>Sala</th>
+                    <th>Miejsce</th>
+                    <th>Cena</th>
+                    <th>Data seansu</th>
+                    <th>Data zakupu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.Tickets)
+                {
+                    <tr>
+                        <td>@t.Screening.Movie.Title</td>
+                        <td>@t.Screening.Hall.Name</td>
+                        <td>@t.SeatNumber</td>
+                        <td>@t.Price.ToString("C")</td>
+                        <td>@t.Screening.StartTime.ToLocalTime().ToString("g")</td>
+                        <td>@t.SoldAt.ToLocalTime().ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
