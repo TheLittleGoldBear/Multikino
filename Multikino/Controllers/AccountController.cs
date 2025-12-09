@@ -72,7 +72,7 @@ namespace Multikino.Controllers
                 return RedirectToAction("Index", "Admin");
             }
 
-            return RedirectToAction("Dashboard", "Home");
+            return RedirectToAction("Index", "Screenings");
         }
 
         [HttpGet]

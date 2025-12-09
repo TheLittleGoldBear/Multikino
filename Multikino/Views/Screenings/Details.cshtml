@@ -12,7 +12,7 @@
         <h4 class="card-title">@Model.MovieTitle</h4>
         <p class="mb-1"><strong>Sala:</strong> @Model.HallName</p>
         <p class="mb-1"><strong>Start:</strong> @Model.StartTime.ToLocalTime().ToString("f")</p>
-        <p class="mb-1"><strong>Cena:</strong> @Model.Price.ToString("C")</p>
+        <p class="mb-1"><strong>Cena:</strong> @Model.Price.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))</p>
     </div>
 </div>
 
@@ -23,7 +23,6 @@
     </div>
 }
 
-<!-- Formularz zakupu biletu -->
 <form asp-action="Details" method="post" class="card p-3">
     @Html.AntiForgeryToken()
 
@@ -37,12 +36,18 @@
     <!-- Wyświetlanie błędów walidacji -->
     <div asp-validation-summary="All" class="text-danger mb-2"></div>
 
-    <button type="submit" class="btn btn-success" @(User.Identity.IsAuthenticated ? "" : "disabled")>
-        Kup bilet
-    </button>
+    <!-- Przyciski obok siebie -->
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success btn-sm" @(User.Identity.IsAuthenticated ? "" : "disabled")>
+            Kup
+        </button>
 
-    <a asp-action="Index" asp-controller="Screenings" class="btn btn-secondary ms-2">Powrót</a>
+        <a asp-action="Index" asp-controller="Screenings" class="btn btn-secondary btn-sm">
+            Powrót
+        </a>
+    </div>
 </form>
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

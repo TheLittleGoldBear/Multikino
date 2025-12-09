@@ -96,7 +96,7 @@ else
                     <tr>
                         <td>@t.Screening.Movie.Title</td>
                         <td>@t.Screening.Hall.Name</td>
-                        <td>@t.Price.ToString("C")</td>
+                        <td>@t.Price.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))</td>
                         <td>@t.Screening.StartTime.ToLocalTime().ToString("g")</td>
                         <td>@t.SoldAt.ToLocalTime().ToString("g")</td>
                     </tr>
