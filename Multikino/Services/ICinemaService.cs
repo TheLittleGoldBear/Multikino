@@ -8,6 +8,6 @@ namespace Multikino.Services
         Task<Movie?> GetMovieWithScreeningsAsync(int movieId);
 
         Task<List<Screening>> GetScreeningsAsync(int movieId, DateTime? from, DateTime? to);
-        Task<bool> ReserveTicketAsync(int screeningId, string seatNumber, int? userId = null);
+        Task<bool> ReserveTicketAsync(int screeningId, int? userId = null);
     }
 }

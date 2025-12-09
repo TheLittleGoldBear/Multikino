@@ -5,8 +5,9 @@
     ViewData["Title"] = "Seanse";
 }
 
-<h1 class="mb-4">Seanse</h1>
+<h1>Seanse</h1>
 
+<!-- Formularz wyszukiwania -->
 <form method="get" class="row g-2 mb-4">
     <div class="col-sm-4">
         <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Szukaj filmu lub sali..." />
@@ -16,32 +17,22 @@
     </div>
 </form>
 
-<table class="table table-striped">
+<!-- Lista nadchodzących seansów -->
+<table class="table table-striped mb-5">
     <thead>
         <tr>
             <th>
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewBag.MovieSort"
-                   asp-route-search="@Model.Search">
-                    Film
-                </a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.MovieSort" asp-route-search="@Model.Search">Film</a>
             </th>
             <th>
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewBag.HallSort"
-                   asp-route-search="@Model.Search">
-                    Sala
-                </a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.HallSort" asp-route-search="@Model.Search">Sala</a>
             </th>
             <th>
-                <a asp-action="Index"
-                   asp-route-sortOrder="@ViewBag.DateSort"
-                   asp-route-search="@Model.Search">
-                    Data / godzina
-                </a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.DateSort" asp-route-search="@Model.Search">Data / godzina</a>
             </th>
             <th>Język</th>
             <th>3D</th>
+            <th>Wolne miejsca</th>
             <th></th>
         </tr>
     </thead>
@@ -49,25 +40,68 @@
         @if (!Model.Screenings.Any())
         {
             <tr>
-                <td colspan="6" class="text-center">Brak nadchodzących seansów.</td>
+                <td colspan="7" class="text-center">Brak nadchodzących seansów.</td>
             </tr>
         }
         else
         {
             @foreach (var s in Model.Screenings)
             {
+                var free = s.Hall.Capacity - (s.Tickets?.Count() ?? 0);
                 <tr>
                     <td>@s.Movie?.Title</td>
                     <td>@s.Hall?.Name</td>
                     <td>@s.StartTime.ToLocalTime().ToString("g")</td>
                     <td>@s.Language</td>
                     <td>@(s.Is3D ? "Tak" : "Nie")</td>
+                    <td>@free</td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-primary">Kup bilet</a>
-                        <span class="ms-2 text-muted">Wolnych: @(s.Hall.Capacity - (s.Tickets?.Count() ?? 0))</span>
+                        @if (free > 0)
+                        {
+                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-primary">Kup bilet</a>
+                        }
+                        else
+                        {
+                            <span class="text-danger">Brak miejsc</span>
+                        }
                     </td>
                 </tr>
             }
         }
     </tbody>
 </table>
+
+<!-- Lista zakupionych biletów -->
+<h2>Moje bilety</h2>
+@if (!Model.MyTickets.Any())
+{
+    <div class="alert alert-info">Nie masz jeszcze żadnych zakupionych biletów.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Film</th>
+                    <th>Sala</th>
+                    <th>Cena</th>
+                    <th>Data seansu</th>
+                    <th>Data zakupu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.MyTickets)
+                {
+                    <tr>
+                        <td>@t.Screening.Movie.Title</td>
+                        <td>@t.Screening.Hall.Name</td>
+                        <td>@t.Price.ToString("C")</td>
+                        <td>@t.Screening.StartTime.ToLocalTime().ToString("g")</td>
+                        <td>@t.SoldAt.ToLocalTime().ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

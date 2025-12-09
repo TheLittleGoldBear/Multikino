@@ -5,7 +5,6 @@
         public int Id { get; set; }
         public int ScreeningId { get; set; }
         public int? UserId { get; set; }
-        public string SeatNumber { get; set; } = null!;
         public decimal Price { get; set; }
         public DateTime SoldAt { get; set; }
 

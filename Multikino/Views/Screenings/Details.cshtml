@@ -23,15 +23,25 @@
     </div>
 }
 
+<!-- Formularz zakupu biletu -->
 <form asp-action="Details" method="post" class="card p-3">
     @Html.AntiForgeryToken()
+
+    <!-- Ukryte pola dla walidacji -->
     <input type="hidden" asp-for="ScreeningId" />
+    <input type="hidden" asp-for="MovieTitle" />
+    <input type="hidden" asp-for="HallName" />
+    <input type="hidden" asp-for="StartTime" />
+    <input type="hidden" asp-for="Price" />
+
+    <!-- Wyświetlanie błędów walidacji -->
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
 
     <button type="submit" class="btn btn-success" @(User.Identity.IsAuthenticated ? "" : "disabled")>
         Kup bilet
     </button>
 
-    <a asp-action="Index" asp-controller="Screenings" class="btn btn-secondary">Powrót</a>
+    <a asp-action="Index" asp-controller="Screenings" class="btn btn-secondary ms-2">Powrót</a>
 </form>
 
 @section Scripts {

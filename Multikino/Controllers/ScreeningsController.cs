@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Multikino.Models.View;
 using Multikino.Models;
+using Multikino.Models.View;
 using Multikino.Services;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 
 namespace Multikino.Controllers
@@ -30,9 +29,19 @@ namespace Multikino.Controllers
 
             var screenings = await _ticketService.GetUpcomingScreeningsAsync(search, sortOrder);
 
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int? userId = null;
+            List<Ticket> myTickets = new List<Ticket>();
+            if (int.TryParse(userIdClaim, out var parsed))
+            {
+                userId = parsed;
+                myTickets = (List<Ticket>)await _ticketService.GetTicketsForUserAsync(userId.Value);
+            }
+
             var vm = new ScreeningListViewModel
             {
                 Screenings = screenings,
+                MyTickets = myTickets,
                 Search = search,
                 SortOrder = sortOrder
             };
@@ -66,7 +75,6 @@ namespace Multikino.Controllers
         }
 
 
-        // POST: /Screenings/Details/5 -> kupno
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -75,22 +83,38 @@ namespace Multikino.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-
-            // pobierz userId z claim
+            // userId
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int? userId = null;
-            if (int.TryParse(userIdClaim, out var parsed)) userId = parsed;
+            if (!int.TryParse(userIdClaim, out var userId))
+                return Challenge();
 
-
-            var result = await _ticketService.PurchaseTicketAsync(vm.ScreeningId, userId);
-            if (!result.Success)
+            // pobieramy seans
+            var screening = await _ticketService.GetScreeningAsync(vm.ScreeningId);
+            if (screening == null)
             {
-                ModelState.AddModelError("", result.ErrorMessage ?? "Nieznany błąd podczas zakupu.");
+                ModelState.AddModelError("", "Nie znaleziono seansu.");
                 return View(vm);
             }
 
+            var sold = screening.Tickets?.Count() ?? 0;
+            var free = screening.Hall.Capacity - sold;
 
-            return RedirectToAction("MyTickets", "Tickets");
+            if (free <= 0)
+            {
+                ModelState.AddModelError("", "Brak wolnych miejsc na ten seans.");
+                return View(vm);
+            }
+
+            var result = await _ticketService.PurchaseTicketAsync(vm.ScreeningId, userId);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError("", result.ErrorMessage ?? "Nie udało się kupić biletu.");
+                return View(vm);
+            }
+
+            return RedirectToAction("Index");
         }
+
     }
 }

@@ -60,11 +60,11 @@ namespace Multikino.Services
                 .ToListAsync();
         }
 
-        public async Task<bool> ReserveTicketAsync(int screeningId, string seatNumber, int? userId = null)
+        public async Task<bool> ReserveTicketAsync(int screeningId,  int? userId = null)
         {
             // sprawdzamy czy miejsce jest wolne
             bool taken = await _context.Tickets
-                .AnyAsync(t => t.ScreeningId == screeningId && t.SeatNumber == seatNumber);
+                .AnyAsync(t => t.ScreeningId == screeningId );
 
             if (taken)
                 return false;
@@ -80,8 +80,7 @@ namespace Multikino.Services
             var ticket = new Ticket
             {
                 ScreeningId = screeningId,
-                UserId = userId,      // na razie null, później z Identity
-                SeatNumber = seatNumber,
+                UserId = userId,
                 Price = screening.Movie.BasePrice,
                 SoldAt = DateTime.Now
             };

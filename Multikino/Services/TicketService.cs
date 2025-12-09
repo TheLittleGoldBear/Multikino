@@ -71,48 +71,39 @@ namespace Multikino.Services
 
         public async Task<(bool Success, string? ErrorMessage)> PurchaseTicketAsync(int screeningId, int? userId)
         {
-            // Pobierz seans i powiązane dane
             var screening = await _db.Screenings
-            .Include(s => s.Movie)
-            .Include(s => s.Hall)
-            .Include(s => s.Tickets)
-            .FirstOrDefaultAsync(s => s.Id == screeningId);
-
+                .Include(s => s.Movie)
+                .Include(s => s.Hall)
+                .Include(s => s.Tickets)
+                .FirstOrDefaultAsync(s => s.Id == screeningId);
 
             if (screening == null)
                 return (false, "Seans nie istnieje.");
 
-
-            // Sprawdź czy seans już się nie odbył
             if (screening.StartTime <= DateTime.UtcNow)
                 return (false, "Seans już się rozpoczął lub minął.");
 
-
-            // Sprawdź pojemność sali
             var soldCount = screening.Tickets.Count;
             if (soldCount >= screening.Hall.Capacity)
                 return (false, "Brak wolnych miejsc w tej sali.");
 
-
             decimal price = screening.Movie.BasePrice;
             if (screening.Is3D || screening.Hall.Is3D)
                 price += 5m;
-
 
             var ticket = new Ticket
             {
                 ScreeningId = screening.Id,
                 UserId = userId,
                 Price = price,
-                SoldAt = DateTime.UtcNow
+                SoldAt = DateTime.UtcNow,
             };
-
 
             _db.Tickets.Add(ticket);
             await _db.SaveChangesAsync();
 
-
             return (true, null);
         }
+
     }
 }
