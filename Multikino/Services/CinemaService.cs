@@ -37,8 +37,7 @@ namespace Multikino.Services
         {
             return await _context.Movies
                 .Include(m => m.Screenings)        // powiązane seanse
-                    .ThenInclude(s => s.Hall)      // i sale
-                .Include(m => m.Images)            // plakaty
+                    .ThenInclude(s => s.Hall)      // plakaty
                 .FirstOrDefaultAsync(m => m.Id == movieId);
         }
 

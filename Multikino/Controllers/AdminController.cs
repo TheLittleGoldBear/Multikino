@@ -74,21 +74,60 @@ namespace Multikino.Controllers
             return View(movie);
         }
 
-        // POST: /Admin/EditMovie/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditMovie(int id, Movie movie)
+        public async Task<IActionResult> EditMovie(int id, Movie movie, IFormFile? poster)
         {
             if (id != movie.Id) return BadRequest();
 
             if (!ModelState.IsValid)
+            {
+                // jeżeli modelstate invalid to pokazujemy widok z danymi (istniejący poster będzie widoczny ponieważ Movie z DB zostanie ponownie pobrany w GET)
                 return View(movie);
+            }
 
-            var ok = await _adminService.UpdateMovieAsync(movie);
+            // Pobierz istniejący film z bazy
+            var existing = await _adminService.GetMovieAsync(id);
+            if (existing == null) return NotFound();
+
+            // Aktualizujemy pola (nie nadpisujemy PosterData chyba że nowy plik)
+            existing.Title = movie.Title;
+            existing.Description = movie.Description;
+            existing.DurationMin = movie.DurationMin;
+            existing.ReleaseDate = movie.ReleaseDate;
+            existing.BasePrice = movie.BasePrice;
+
+            // Obsługa nowego plakatu (jeśli przesłano)
+            if (poster != null && poster.Length > 0)
+            {
+                var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+                const long maxBytes = 5 * 1024 * 1024; // 5 MB
+
+                if (!allowed.Contains(poster.ContentType))
+                {
+                    ModelState.AddModelError("poster", "Plik musi być obrazem (jpg, png, webp).");
+                    return View(existing);
+                }
+                if (poster.Length > maxBytes)
+                {
+                    ModelState.AddModelError("poster", "Plik jest za duży (max 5 MB).");
+                    return View(existing);
+                }
+
+                using (var ms = new MemoryStream())
+                {
+                    await poster.CopyToAsync(ms);
+                    existing.PosterData = ms.ToArray();
+                }
+                existing.PosterContentType = poster.ContentType;
+            }
+
+            var ok = await _adminService.UpdateMovieAsync(existing);
             if (!ok) return NotFound();
 
             return RedirectToAction(nameof(Index));
         }
+
 
         public async Task<IActionResult> DeleteMovie(int id)
         {
@@ -121,10 +160,37 @@ namespace Multikino.Controllers
         // POST: /Admin/CreateMovie
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateMovie(Movie movie)
+        public async Task<IActionResult> CreateMovie(Movie movie, IFormFile? poster)
         {
             if (!ModelState.IsValid)
                 return View(movie);
+
+            if (poster != null && poster.Length > 0)
+            {
+                // Walidacja typu i rozmiaru (np. max 5 MB)
+                var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+                const long maxBytes = 5 * 1024 * 1024; // 5 MB
+
+                if (!allowed.Contains(poster.ContentType))
+                {
+                    ModelState.AddModelError("poster", "Plik musi być obrazem (jpg, png, webp).");
+                    return View(movie);
+                }
+
+                if (poster.Length > maxBytes)
+                {
+                    ModelState.AddModelError("poster", "Plik jest za duży (max 5 MB).");
+                    return View(movie);
+                }
+
+                using (var ms = new MemoryStream())
+                {
+                    await poster.CopyToAsync(ms);
+                    movie.PosterData = ms.ToArray();
+                }
+
+                movie.PosterContentType = poster.ContentType;
+            }
 
             await _adminService.CreateMovieAsync(movie);
             return RedirectToAction(nameof(Index));
@@ -344,6 +410,18 @@ namespace Multikino.Controllers
             };
 
             return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous] // usuń jeśli chcesz ograniczyć dostęp tylko dla adminów
+        public async Task<IActionResult> GetPoster(int id)
+        {
+            var movie = await _adminService.GetMovieAsync(id);
+            if (movie == null || movie.PosterData == null || movie.PosterData.Length == 0)
+                return NotFound();
+
+            var contentType = string.IsNullOrEmpty(movie.PosterContentType) ? "application/octet-stream" : movie.PosterContentType;
+            return File(movie.PosterData, contentType);
         }
 
     }

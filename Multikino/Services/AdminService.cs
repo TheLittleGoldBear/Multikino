@@ -39,7 +39,6 @@ namespace Multikino.Services
         public async Task<Movie?> GetMovieAsync(int id)
         {
             return await _context.Movies
-                .Include(m => m.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 

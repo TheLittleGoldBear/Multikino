@@ -8,8 +8,8 @@
         public string? Description { get; set; }
         public DateTime? ReleaseDate { get; set; }
         public decimal BasePrice { get; set; }
-
+        public byte[]? PosterData { get; set; }
+        public string? PosterContentType { get; set; }
         public ICollection<Screening> Screenings { get; set; } = new List<Screening>();
-        public ICollection<MovieImage> Images { get; set; } = new List<MovieImage>();
     }
 }

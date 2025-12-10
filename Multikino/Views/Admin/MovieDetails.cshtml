@@ -2,6 +2,16 @@
 
 <h2>Szczegóły filmu</h2>
 
+@if (Model.PosterData != null && !string.IsNullOrEmpty(Model.PosterContentType))
+{
+    <div class="mb-3">
+        <img src="@Url.Action("GetPoster", "Admin", new { id = Model.Id })"
+             alt="@Model.Title poster"
+             class="img-fluid"
+             style="max-width:400px;" />
+    </div>
+}
+
 <dl class="row">
     <dt class="col-sm-2">Tytuł</dt>
     <dd class="col-sm-10">@Model.Title</dd>

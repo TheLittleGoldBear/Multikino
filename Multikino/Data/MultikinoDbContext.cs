@@ -15,7 +15,6 @@ namespace Multikino.Data
         public DbSet<Movie> Movies => Set<Movie>();
         public DbSet<Screening> Screenings => Set<Screening>();
         public DbSet<Ticket> Tickets => Set<Ticket>();
-        public DbSet<MovieImage> MovieImages => Set<MovieImage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,10 +30,13 @@ namespace Multikino.Data
                 .WithOne(s => s.Movie)
                 .HasForeignKey(s => s.MovieId);
 
-            modelBuilder.Entity<Movie>()
-                .HasMany(m => m.Images)
-                .WithOne(i => i.Movie)
-                .HasForeignKey(i => i.MovieId);
+            modelBuilder.Entity<Movie>(eb =>
+            {
+                eb.Property(m => m.PosterData)
+                  .HasColumnType("varbinary(max)");
+                eb.Property(m => m.PosterContentType)
+                  .HasMaxLength(100);
+            });
 
             modelBuilder.Entity<Screening>()
                 .HasMany(s => s.Tickets)

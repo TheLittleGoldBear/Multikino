@@ -33,6 +33,11 @@
         <span asp-validation-for="BasePrice" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Plakat filmu (jpg/png/webp, max 5MB)</label>
+        <input type="file" name="poster" class="form-control" accept="image/*" />
+    </div>
+
     <button type="submit" class="btn btn-primary mt-2">Zapisz</button>
     <a asp-action="Index" class="btn btn-secondary mt-2">Powrót</a>
 </form>
