@@ -1,0 +1,41 @@
+﻿@model Multikino.Models.View.TicketSalesReportViewModel
+
+@{
+    ViewData["Title"] = "Raport sprzedaży biletów";
+}
+
+<h2>Raport sprzedaży biletów</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Od</label>
+        <input type="date" name="from" value="@Model.From.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Do</label>
+        <input type="date" name="to" value="@Model.To.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-primary">Zastosuj</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Liczba sprzedanych biletów</th>
+            <th>Przychód</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var it in Model.Items)
+        {
+            <tr>
+                <td>@it.Date.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                <td>@it.TicketsSold</td>
+                <td>@it.Revenue.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))</td>
+            </tr>
+        }
+    </tbody>
+</table>

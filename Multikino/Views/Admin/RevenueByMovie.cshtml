@@ -1,0 +1,45 @@
+﻿@model Multikino.Models.View.RevenueByMovieReportViewModel
+
+@{
+    ViewData["Title"] = "Przychód według filmu";
+}
+
+<h2>Przychód według filmu</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Od</label>
+        <input type="date" name="from" value="@Model.From.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Do</label>
+        <input type="date" name="to" value="@Model.To.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-primary">Zastosuj</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Tytuł filmu</th>
+            <th>Liczba sprzedanych biletów</th>
+            <th>Przychód</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var it in Model.Items)
+        {
+            <tr>
+                <td>@it.MovieTitle</td>
+                <td>@it.TicketsSold</td>
+                <td>@it.Revenue.ToString("C2", System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))</td>
+                <td>
+                    <a asp-controller="Admin" asp-action="MovieDetails" asp-route-id="@it.MovieId" class="btn btn-sm btn-info">Szczegóły</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

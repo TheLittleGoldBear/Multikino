@@ -296,9 +296,6 @@ namespace Multikino.Controllers
             });
         }
 
-        // ================== SALE (tylko podgląd) ==================
-
-        // GET: /Admin/Halls
         public async Task<IActionResult> Halls(string? search, string? sortOrder)
         {
             ViewBag.CurrentSearch = search;
@@ -308,5 +305,46 @@ namespace Multikino.Controllers
             var halls = await _adminService.GetHallsAsync(search, sortOrder);
             return View(halls);
         }
+
+        // GET: /Admin/TicketSalesReport
+        public async Task<IActionResult> TicketSalesReport(DateTime? from = null, DateTime? to = null)
+        {
+            // default: ostatnie 30 dni
+            var defaultFrom = DateTime.UtcNow.Date.AddDays(-30);
+            var defaultTo = DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
+
+            var f = from ?? defaultFrom;
+            var t = to ?? defaultTo;
+
+            // Pobierz dane raportu z serwisu
+            var model = new TicketSalesReportViewModel
+            {
+                From = f,
+                To = t,
+                Items = await _adminService.GetTicketSalesReportAsync(f, t)
+            };
+
+            return View(model);
+        }
+
+        // GET: /Admin/RevenueByMovie
+        public async Task<IActionResult> RevenueByMovie(DateTime? from = null, DateTime? to = null)
+        {
+            var defaultFrom = DateTime.UtcNow.Date.AddDays(-30);
+            var defaultTo = DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
+
+            var f = from ?? defaultFrom;
+            var t = to ?? defaultTo;
+
+            var model = new RevenueByMovieReportViewModel
+            {
+                From = f,
+                To = t,
+                Items = await _adminService.GetRevenueByMovieAsync(f, t)
+            };
+
+            return View(model);
+        }
+
     }
 }

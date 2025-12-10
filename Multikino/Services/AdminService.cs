@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Multikino.Data;
 using Multikino.Models;
+using Multikino.Models.View;
 
 namespace Multikino.Services
 {
@@ -198,5 +199,60 @@ namespace Multikino.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<TicketSalesReportItem>> GetTicketSalesReportAsync(DateTime from, DateTime to)
+        {
+            // normalizujemy do zakresu UTC (przyjmujemy że SoldAt jest w UTC — dopasuj jeżeli inaczej)
+            var fromUtc = from.ToUniversalTime();
+            var toUtc = to.ToUniversalTime();
+
+            // Grupuj po dacie sprzedaży (dniu) i sumuj
+            var q = _context.Tickets
+                .Where(t => t.SoldAt >= fromUtc && t.SoldAt <= toUtc)
+                .GroupBy(t => new { Day = EF.Functions.DateFromParts(t.SoldAt.Year, t.SoldAt.Month, t.SoldAt.Day) })
+                // NOTE: EF.Functions.DateFromParts nie jest dostępne we wszystkich providerach.
+                // zamiast tego bezpieczniej mapujemy do daty bez czasu po serii operacji:
+                .Select(g => new TicketSalesReportItem
+                {
+                    Date = g.Min(t => t.SoldAt).Date, // dzień (UTC)
+                    TicketsSold = g.Count(),
+                    Revenue = g.Sum(t => t.Price)
+                });
+
+            // Jeśli twoja baza/EF nie tłumaczy DateFromParts, użyj:
+            // var q = _db.Tickets
+            //     .Where(t => t.SoldAt >= fromUtc && t.SoldAt <= toUtc)
+            //     .AsEnumerable()
+            //     .GroupBy(t => t.SoldAt.ToUniversalTime().Date)
+            //     .Select(g => new TicketSalesReportItem { Date = g.Key, TicketsSold = g.Count(), Revenue = g.Sum(x=>x.Price) });
+
+            return await q.OrderBy(i => i.Date).ToListAsync();
+        }
+
+        public async Task<IEnumerable<RevenueByMovieItem>> GetRevenueByMovieAsync(DateTime from, DateTime to)
+        {
+            var fromUtc = from.ToUniversalTime();
+            var toUtc = to.ToUniversalTime();
+
+            var q = _context.Tickets
+                .Where(t => t.SoldAt >= fromUtc && t.SoldAt <= toUtc)
+                .Include(t => t.Screening)
+                    .ThenInclude(s => s.Movie);
+
+            var grouped = await q
+                .GroupBy(t => new { t.Screening.MovieId, t.Screening.Movie.Title })
+                .Select(g => new RevenueByMovieItem
+                {
+                    MovieId = g.Key.MovieId,
+                    MovieTitle = g.Key.Title,
+                    TicketsSold = g.Count(),
+                    Revenue = g.Sum(t => t.Price)
+                })
+                .OrderByDescending(x => x.Revenue)
+                .ToListAsync();
+
+            return grouped;
+        }
+
     }
 }
