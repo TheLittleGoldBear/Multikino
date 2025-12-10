@@ -30,30 +30,58 @@ namespace Multikino.Services
 
         public async Task<IEnumerable<Screening>> GetUpcomingScreeningsAsync(string? search = null, string? sortOrder = null)
         {
-            var q = _db.Screenings
-            .Include(s => s.Movie)
-            .Include(s => s.Hall)
-            .Where(s => s.StartTime >= DateTime.UtcNow)
-            .AsQueryable();
-
+            // Bazowe zapytanie z potrzebnymi Include (jeśli chcesz mieć związane encje od razu w wynikach)
+            var baseQuery = _db.Screenings
+                .Include(s => s.Movie)
+                .Include(s => s.Hall)
+                // nie musimy Include(s => s.Tickets) bo liczymy Tickets przez oddzielne zapytanie do tabeli Tickets
+                .Where(s => s.StartTime >= DateTime.UtcNow)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                search = search.Trim().ToLower();
-                q = q.Where(s => s.Movie.Title.ToLower().Contains(search) || s.Hall.Name.ToLower().Contains(search));
+                var lowered = search.Trim().ToLower();
+                baseQuery = baseQuery.Where(s =>
+                    s.Movie.Title.ToLower().Contains(lowered) ||
+                    s.Hall.Name.ToLower().Contains(lowered));
             }
 
-
-            q = sortOrder switch
+            // Projekcja pomocnicza — dodajemy pole Free, które EF potrafi przetłumaczyć: subquery Count(...) na Tickets
+            var projected = baseQuery.Select(s => new
             {
-                "date_desc" => q.OrderByDescending(s => s.StartTime),
-                "movie" => q.OrderBy(s => s.Movie.Title),
-                "movie_desc" => q.OrderByDescending(s => s.Movie.Title),
-                _ => q.OrderBy(s => s.StartTime)
+                Screening = s,
+                Free = s.Hall.Capacity - _db.Tickets.Count(t => t.ScreeningId == s.Id) // translatowalne do SQL
+            });
+
+            // Sortowanie na podstawie sortOrder
+            projected = sortOrder switch
+            {
+                "date_desc" => projected.OrderByDescending(p => p.Screening.StartTime),
+                "movie" => projected.OrderBy(p => p.Screening.Movie.Title),
+                "movie_desc" => projected.OrderByDescending(p => p.Screening.Movie.Title),
+                "hall" => projected.OrderBy(p => p.Screening.Hall.Name),
+                "hall_desc" => projected.OrderByDescending(p => p.Screening.Hall.Name),
+
+                // language
+                "language" => projected.OrderBy(p => p.Screening.Language),
+                "language_desc" => projected.OrderByDescending(p => p.Screening.Language),
+
+                // is3d (proste bool ordering — EF przetłumaczy)
+                "is3d" => projected.OrderBy(p => p.Screening.Is3D),
+                "is3d_desc" => projected.OrderByDescending(p => p.Screening.Is3D),
+
+                // wolne miejsca
+                "free" => projected.OrderBy(p => p.Free),
+                "free_desc" => projected.OrderByDescending(p => p.Free),
+
+                // domyślnie data rosnąco
+                _ => projected.OrderBy(p => p.Screening.StartTime)
             };
 
+            // Pobieramy listę Screening'ów (wyciągamy z projekcji)
+            var list = await projected.Select(p => p.Screening).ToListAsync();
 
-            return await q.ToListAsync();
+            return list;
         }
 
         public async Task<IEnumerable<Ticket>> GetTicketsForUserAsync(int userId)

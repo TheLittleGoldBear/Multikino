@@ -4,10 +4,6 @@
 @{
     ViewData["Title"] = "Seanse";
 }
-
-<h1>Seanse</h1>
-
-<!-- Formularz wyszukiwania -->
 <form method="get" class="row g-2 mb-4">
     <div class="col-sm-4">
         <input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Szukaj filmu lub sali..." />
@@ -17,22 +13,39 @@
     </div>
 </form>
 
-<!-- Lista nadchodzących seansów -->
 <table class="table table-striped mb-5">
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.MovieSort" asp-route-search="@Model.Search">Film</a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.MovieSort"
+                   asp-route-search="@Model.Search">Film</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.HallSort" asp-route-search="@Model.Search">Sala</a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.HallSort"
+                   asp-route-search="@Model.Search">Sala</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.DateSort" asp-route-search="@Model.Search">Data / godzina</a>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.DateSort"
+                   asp-route-search="@Model.Search">Data / godzina</a>
             </th>
-            <th>Język</th>
-            <th>3D</th>
-            <th>Wolne miejsca</th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.LanguageSort"
+                   asp-route-search="@Model.Search">Język</a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.Is3DSort"
+                   asp-route-search="@Model.Search">3D</a>
+            </th>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@ViewBag.FreeSort"
+                   asp-route-search="@Model.Search">Wolne miejsca</a>
+            </th>
             <th></th>
         </tr>
     </thead>

@@ -27,6 +27,11 @@ namespace Multikino.Controllers
             ViewBag.MovieSort = sortOrder == "movie" ? "movie_desc" : "movie";
             ViewBag.HallSort = sortOrder == "hall" ? "hall_desc" : "hall";
 
+            // nowe sorty
+            ViewBag.LanguageSort = sortOrder == "language" ? "language_desc" : "language";
+            ViewBag.Is3DSort = sortOrder == "is3d" ? "is3d_desc" : "is3d";
+            ViewBag.FreeSort = sortOrder == "free" ? "free_desc" : "free";
+
             var screenings = await _ticketService.GetUpcomingScreeningsAsync(search, sortOrder);
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
