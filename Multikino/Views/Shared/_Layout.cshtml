@@ -17,7 +17,7 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand"
-                   asp-controller="@(User.Identity?.IsAuthenticated ?? false ? "Screenings" : "Home")"
+                   asp-controller="@(User?.Identity != null && User.IsInRole("Admin") ? "Admin" : "Screenings")"
                    asp-action="Index">
                     Multikino
                 </a>

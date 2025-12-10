@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace Multikino.Controllers
 {
+    [Authorize(Roles = "Client")]
     public class ScreeningsController : Controller
     {
         private readonly ITicketService _ticketService;
