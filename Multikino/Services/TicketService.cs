@@ -84,18 +84,48 @@ namespace Multikino.Services
             return list;
         }
 
-        public async Task<IEnumerable<Ticket>> GetTicketsForUserAsync(int userId)
+        // Dodaj tę metodę w TicketService (przeciążenie)
+        public async Task<IEnumerable<Ticket>> GetTicketsForUserAsync(int userId, string? search = null, string? sortOrder = null)
         {
-            return await _db.Tickets
-            .Include(t => t.Screening)
-            .ThenInclude(s => s.Movie)
-            .Include(t => t.Screening)
-            .ThenInclude(s => s.Hall)
-            .Where(t => t.UserId == userId)
-            .OrderByDescending(t => t.SoldAt)
-            .ToListAsync();
-        }
+            var q = _db.Tickets
+                .Include(t => t.Screening)
+                    .ThenInclude(s => s.Movie)
+                .Include(t => t.Screening)
+                    .ThenInclude(s => s.Hall)
+                .Where(t => t.UserId == userId)
+                .AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var lowered = search.Trim().ToLower();
+                q = q.Where(t =>
+                    t.Screening.Movie.Title.ToLower().Contains(lowered) ||
+                    t.Screening.Hall.Name.ToLower().Contains(lowered));
+            }
+
+            q = sortOrder switch
+            {
+                "ticket_movie" => q.OrderBy(t => t.Screening.Movie.Title),
+                "ticket_movie_desc" => q.OrderByDescending(t => t.Screening.Movie.Title),
+
+                "ticket_hall" => q.OrderBy(t => t.Screening.Hall.Name),
+                "ticket_hall_desc" => q.OrderByDescending(t => t.Screening.Hall.Name),
+
+                "ticket_price" => q.OrderBy(t => t.Price),
+                "ticket_price_desc" => q.OrderByDescending(t => t.Price),
+
+                "ticket_screening_date" => q.OrderBy(t => t.Screening.StartTime),
+                "ticket_screening_date_desc" => q.OrderByDescending(t => t.Screening.StartTime),
+
+                "ticket_sold_date" => q.OrderBy(t => t.SoldAt),
+                "ticket_sold_date_desc" => q.OrderByDescending(t => t.SoldAt),
+
+                // default: sold date desc (ostatnio kupione na górze)
+                _ => q.OrderByDescending(t => t.SoldAt)
+            };
+
+            return await q.ToListAsync();
+        }
 
         public async Task<(bool Success, string? ErrorMessage)> PurchaseTicketAsync(int screeningId, int? userId)
         {

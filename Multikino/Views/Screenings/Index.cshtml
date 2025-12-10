@@ -85,7 +85,22 @@
 </table>
 
 <!-- Lista zakupionych biletów -->
+<!-- Lista zakupionych biletów -->
 <h2>Moje bilety</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <!-- zachowujemy parametry dla listy seansów aby filtr seansów nie zniknął -->
+    <input type="hidden" name="search" value="@Model.Search" />
+    <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+
+    <div class="col-sm-4">
+        <input type="text" name="ticketSearch" value="@Model.TicketSearch" class="form-control" placeholder="Szukaj w moich biletach (film / sala)..." />
+    </div>
+    <div class="col-sm-2">
+        <button class="btn btn-outline-primary" type="submit">Filtruj bilety</button>
+    </div>
+</form>
+
 @if (!Model.MyTickets.Any())
 {
     <div class="alert alert-info">Nie masz jeszcze żadnych zakupionych biletów.</div>
@@ -96,11 +111,41 @@ else
         <table class="table table-striped align-middle">
             <thead>
                 <tr>
-                    <th>Film</th>
-                    <th>Sala</th>
-                    <th>Cena</th>
-                    <th>Data seansu</th>
-                    <th>Data zakupu</th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-sortOrder="@Model.SortOrder"
+                           asp-route-ticketSearch="@Model.TicketSearch"
+                           asp-route-ticketSort="@ViewBag.TicketMovieSort">Film</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-sortOrder="@Model.SortOrder"
+                           asp-route-ticketSearch="@Model.TicketSearch"
+                           asp-route-ticketSort="@ViewBag.TicketHallSort">Sala</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-sortOrder="@Model.SortOrder"
+                           asp-route-ticketSearch="@Model.TicketSearch"
+                           asp-route-ticketSort="@ViewBag.TicketPriceSort">Cena</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-sortOrder="@Model.SortOrder"
+                           asp-route-ticketSearch="@Model.TicketSearch"
+                           asp-route-ticketSort="@ViewBag.TicketDateScreeningSort">Data seansu</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index"
+                           asp-route-search="@Model.Search"
+                           asp-route-sortOrder="@Model.SortOrder"
+                           asp-route-ticketSearch="@Model.TicketSearch"
+                           asp-route-ticketSort="@ViewBag.TicketDateSoldSort">Data zakupu</a>
+                    </th>
                 </tr>
             </thead>
             <tbody>
