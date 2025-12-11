@@ -27,8 +27,6 @@
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                   
-                    <!-- Prawa strona: logowanie / rejestracja / wyloguj -->
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
@@ -66,7 +64,6 @@
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - Multikino -
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 

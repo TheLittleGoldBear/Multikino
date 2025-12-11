@@ -1,6 +1,4 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Multikino.Models;
 
 namespace Multikino.Controllers
 {
@@ -14,11 +12,6 @@ namespace Multikino.Controllers
         }
 
         public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
         {
             return View();
         }
