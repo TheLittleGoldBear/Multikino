@@ -12,20 +12,16 @@ namespace Multikino.Controllers
     {
         private readonly ITicketService _ticketService;
 
-
         public TicketsController(ITicketService ticketService)
         {
             _ticketService = ticketService;
         }
 
-
-        // GET: /Tickets/MyTickets
         public async Task<IActionResult> MyTickets()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out var userId))
-                return Challenge(); // albo RedirectToAction("Login", "Account")
-
+                return Challenge();
 
             var tickets = await _ticketService.GetTicketsForUserAsync(userId);
             var vm = new UserTicketsViewModel { Tickets = tickets };

@@ -22,7 +22,6 @@ namespace Multikino.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(string? search, string? sortOrder, string? ticketSearch, string? ticketSort)
         {
-            // Toggle'y dla listy seansów (jak było wcześniej)
             ViewBag.DateSort = sortOrder == "date" ? "date_desc" : "date";
             ViewBag.MovieSort = sortOrder == "movie" ? "movie_desc" : "movie";
             ViewBag.HallSort = sortOrder == "hall" ? "hall_desc" : "hall";
@@ -30,24 +29,20 @@ namespace Multikino.Controllers
             ViewBag.Is3DSort = sortOrder == "is3d" ? "is3d_desc" : "is3d";
             ViewBag.FreeSort = sortOrder == "free" ? "free_desc" : "free";
 
-            // Toggle'y dla listy biletów (Moje bilety)
             ViewBag.TicketMovieSort = ticketSort == "ticket_movie" ? "ticket_movie_desc" : "ticket_movie";
             ViewBag.TicketHallSort = ticketSort == "ticket_hall" ? "ticket_hall_desc" : "ticket_hall";
             ViewBag.TicketPriceSort = ticketSort == "ticket_price" ? "ticket_price_desc" : "ticket_price";
             ViewBag.TicketDateScreeningSort = ticketSort == "ticket_screening_date" ? "ticket_screening_date_desc" : "ticket_screening_date";
             ViewBag.TicketDateSoldSort = ticketSort == "ticket_sold_date" ? "ticket_sold_date_desc" : "ticket_sold_date";
 
-            // Pobranie seansów
             var screenings = await _ticketService.GetUpcomingScreeningsAsync(search, sortOrder);
 
-            // userId + pobranie biletów z filtrem/sortem
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int? userId = null;
             List<Ticket> myTickets = new List<Ticket>();
             if (int.TryParse(userIdClaim, out var parsed))
             {
                 userId = parsed;
-                // Używamy nowej wersji metody, która przyjmuje search i sort dla biletów
                 myTickets = (List<Ticket>)await _ticketService.GetTicketsForUserAsync(userId.Value, ticketSearch, ticketSort);
             }
 
@@ -64,7 +59,6 @@ namespace Multikino.Controllers
             return View(vm);
         }
 
-        // GET: /Screenings/Details/5 -> pokazuje szczegóły i formularz kupna
         [Authorize]
         public async Task<IActionResult> Details(int id)
         {
@@ -73,7 +67,6 @@ namespace Multikino.Controllers
 
 
             decimal price = s.Movie.BasePrice + ((s.Is3D || s.Hall.Is3D) ? 5m : 0m);
-
 
             var vm = new PurchaseTicketViewModel
             {
@@ -97,12 +90,10 @@ namespace Multikino.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
-            // userId
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(userIdClaim, out var userId))
                 return Challenge();
 
-            // pobieramy seans
             var screening = await _ticketService.GetScreeningAsync(vm.ScreeningId);
             if (screening == null)
             {
@@ -129,6 +120,5 @@ namespace Multikino.Controllers
 
             return RedirectToAction("Index");
         }
-
     }
 }
