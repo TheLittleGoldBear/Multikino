@@ -6,25 +6,17 @@ DELETE FROM Screenings;
 DELETE FROM Movies;
 DELETE FROM Halls;
 
--------------------------------------------------
--- SALE (bez Id)
--------------------------------------------------
 INSERT INTO Halls (Name, Capacity, Is3D) VALUES
 ('Sala 1', 120, 1),
 ('Sala 2', 80, 0),
 ('Sala VIP', 40, 1);
 
--------------------------------------------------
--- FILMY (bez Id)
--------------------------------------------------
+
 INSERT INTO Movies (Title, DurationMin, Description, ReleaseDate, BasePrice) VALUES
 ('Incepcja', 148, 'Thriller sci-fi w reżyserii Christophera Nolana.', '2010-08-13', 25),
 ('Avatar 2', 190, 'Kontynuacja hitu Jamesa Camerona.', '2022-12-16', 30),
 ('Dune: Part Two', 165, 'Epickie sci-fi.', '2024-03-01', 28);
 
--------------------------------------------------
--- SEANSE (FK pobieramy po nazwach)
--------------------------------------------------
 DECLARE @Hall1 INT = (SELECT TOP 1 Id FROM Halls WHERE Name = 'Sala 1');
 DECLARE @Hall2 INT = (SELECT TOP 1 Id FROM Halls WHERE Name = 'Sala 2');
 DECLARE @HallVip INT = (SELECT TOP 1 Id FROM Halls WHERE Name = 'Sala VIP');
@@ -39,9 +31,7 @@ INSERT INTO Screenings (MovieId, HallId, StartTime, Language, Is3D) VALUES
 (@MovieAvatar,   @Hall1,   '2025-01-17 19:00:00', 'PL', 1),
 (@MovieDune,     @HallVip, '2025-01-18 21:00:00', 'PL', 1);
 
--------------------------------------------------
--- BILETY (też bez Id, poprawiona składnia CTE)
--------------------------------------------------
+
 DECLARE @Screening1 INT;
 DECLARE @Screening3 INT;
 
