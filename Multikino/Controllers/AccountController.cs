@@ -1,5 +1,4 @@
-﻿// Controllers/AccountController.cs
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -90,7 +89,6 @@ namespace Multikino.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // unikalny UserName
             var exists = await _context.Users.AnyAsync(u => u.UserName == model.UserName);
             if (exists)
             {
@@ -108,13 +106,12 @@ namespace Multikino.Controllers
                 PasswordSalt = salt,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
-                Role = "Client"   // <- REJESTRACJA ZAWSZE JAKO CLIENT
+                Role = "Client"
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            // od razu logujemy
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

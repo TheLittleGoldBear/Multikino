@@ -25,16 +25,13 @@ namespace Multikino.Controllers
             string? screeningSearch,
             string? screeningSortOrder)
         {
-            // sortowanie nagłówków filmów
             ViewBag.MovieTitleSort = string.IsNullOrEmpty(movieSortOrder) ? "title_desc" : "";
             ViewBag.MoviePriceSort = movieSortOrder == "price" ? "price_desc" : "price";
             ViewBag.MovieReleaseSort = movieSortOrder == "release" ? "release_desc" : "release";
 
-            // sortowanie nagłówków sal
             ViewBag.HallNameSort = string.IsNullOrEmpty(hallSortOrder) ? "name_desc" : "";
             ViewBag.HallCapacitySort = hallSortOrder == "capacity" ? "capacity_desc" : "capacity";
 
-            // sortowanie nagłówków seansów
             ViewBag.ScreeningDateSort = string.IsNullOrEmpty(screeningSortOrder) ? "date_desc" : "";
             ViewBag.ScreeningMovieSort = screeningSortOrder == "movie" ? "movie_desc" : "movie";
             ViewBag.ScreeningHallSort = screeningSortOrder == "hall" ? "hall_desc" : "hall";
@@ -53,10 +50,9 @@ namespace Multikino.Controllers
                 ScreeningSortOrder = screeningSortOrder
             };
 
-            return View(vm); // to trafi do Views/Admin/Index.cshtml
+            return View(vm);
         }
 
-        // GET: /Admin/MovieDetails/5
         public async Task<IActionResult> MovieDetails(int id)
         {
             var movie = await _adminService.GetMovieAsync(id);
@@ -65,7 +61,6 @@ namespace Multikino.Controllers
             return View(movie);
         }
 
-        // GET: /Admin/EditMovie/5
         public async Task<IActionResult> EditMovie(int id)
         {
             var movie = await _adminService.GetMovieAsync(id);
@@ -82,22 +77,18 @@ namespace Multikino.Controllers
 
             if (!ModelState.IsValid)
             {
-                // jeżeli modelstate invalid to pokazujemy widok z danymi (istniejący poster będzie widoczny ponieważ Movie z DB zostanie ponownie pobrany w GET)
-                return View(movie);
+               return View(movie);
             }
 
-            // Pobierz istniejący film z bazy
             var existing = await _adminService.GetMovieAsync(id);
             if (existing == null) return NotFound();
 
-            // Aktualizujemy pola (nie nadpisujemy PosterData chyba że nowy plik)
-            existing.Title = movie.Title;
+             existing.Title = movie.Title;
             existing.Description = movie.Description;
             existing.DurationMin = movie.DurationMin;
             existing.ReleaseDate = movie.ReleaseDate;
             existing.BasePrice = movie.BasePrice;
 
-            // Obsługa nowego plakatu (jeśli przesłano)
             if (poster != null && poster.Length > 0)
             {
                 var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
@@ -145,7 +136,6 @@ namespace Multikino.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Admin/CreateMovie
         public IActionResult CreateMovie()
         {
             var model = new Movie
@@ -157,7 +147,6 @@ namespace Multikino.Controllers
             return View(model);
         }
 
-        // POST: /Admin/CreateMovie
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateMovie(Movie movie, IFormFile? poster)
@@ -167,7 +156,6 @@ namespace Multikino.Controllers
 
             if (poster != null && poster.Length > 0)
             {
-                // Walidacja typu i rozmiaru (np. max 5 MB)
                 var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
                 const long maxBytes = 5 * 1024 * 1024; // 5 MB
 
@@ -196,9 +184,6 @@ namespace Multikino.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ================== SEANSE ==================
-
-        // GET: /Admin/EditScreening/5
         public async Task<IActionResult> EditScreening(int id)
         {
             var screening = await _adminService.GetScreeningAsync(id);
@@ -230,7 +215,6 @@ namespace Multikino.Controllers
             return View(vm);
         }
 
-        // POST: /Admin/EditScreening/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditScreening(int id, ScreeningCreateViewModel vm)
@@ -268,7 +252,6 @@ namespace Multikino.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: /Admin/CreateScreening
         public async Task<IActionResult> CreateScreening()
         {
             var movies = await _adminService.GetMoviesAsync();
@@ -292,7 +275,6 @@ namespace Multikino.Controllers
             return View(vm);
         }
 
-        // POST: /Admin/CreateScreening
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateScreening(ScreeningCreateViewModel vm)
@@ -372,17 +354,14 @@ namespace Multikino.Controllers
             return View(halls);
         }
 
-        // GET: /Admin/TicketSalesReport
-        public async Task<IActionResult> TicketSalesReport(DateTime? from = null, DateTime? to = null)
+       public async Task<IActionResult> TicketSalesReport(DateTime? from = null, DateTime? to = null)
         {
-            // default: ostatnie 30 dni
-            var defaultFrom = DateTime.UtcNow.Date.AddDays(-30);
+             var defaultFrom = DateTime.UtcNow.Date.AddDays(-30);
             var defaultTo = DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
 
             var f = from ?? defaultFrom;
             var t = to ?? defaultTo;
 
-            // Pobierz dane raportu z serwisu
             var model = new TicketSalesReportViewModel
             {
                 From = f,
@@ -393,8 +372,7 @@ namespace Multikino.Controllers
             return View(model);
         }
 
-        // GET: /Admin/RevenueByMovie
-        public async Task<IActionResult> RevenueByMovie(DateTime? from = null, DateTime? to = null)
+       public async Task<IActionResult> RevenueByMovie(DateTime? from = null, DateTime? to = null)
         {
             var defaultFrom = DateTime.UtcNow.Date.AddDays(-30);
             var defaultTo = DateTime.UtcNow.Date.AddDays(1).AddTicks(-1);
@@ -413,7 +391,7 @@ namespace Multikino.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous] // usuń jeśli chcesz ograniczyć dostęp tylko dla adminów
+        [AllowAnonymous] 
         public async Task<IActionResult> GetPoster(int id)
         {
             var movie = await _adminService.GetMovieAsync(id);
@@ -423,6 +401,5 @@ namespace Multikino.Controllers
             var contentType = string.IsNullOrEmpty(movie.PosterContentType) ? "application/octet-stream" : movie.PosterContentType;
             return File(movie.PosterData, contentType);
         }
-
     }
 }
