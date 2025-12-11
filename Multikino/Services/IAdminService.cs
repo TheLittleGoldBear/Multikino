@@ -24,6 +24,5 @@ namespace Multikino.Services
         Task<bool> DeleteScreeningAsync(int id);
         Task<IEnumerable<TicketSalesReportItem>> GetTicketSalesReportAsync(DateTime from, DateTime to);
         Task<IEnumerable<RevenueByMovieItem>> GetRevenueByMovieAsync(DateTime from, DateTime to);
-
     }
 }

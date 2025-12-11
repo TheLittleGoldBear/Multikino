@@ -18,7 +18,6 @@ namespace Multikino.Services
             _db = db;
         }
 
-
         public async Task<Screening?> GetScreeningAsync(int id)
         {
             return await _db.Screenings
@@ -30,12 +29,10 @@ namespace Multikino.Services
 
         public async Task<IEnumerable<Screening>> GetUpcomingScreeningsAsync(string? search = null, string? sortOrder = null)
         {
-            // Bazowe zapytanie z potrzebnymi Include (jeśli chcesz mieć związane encje od razu w wynikach)
             var baseQuery = _db.Screenings
                 .Include(s => s.Movie)
                 .Include(s => s.Hall)
-                // nie musimy Include(s => s.Tickets) bo liczymy Tickets przez oddzielne zapytanie do tabeli Tickets
-                .Where(s => s.StartTime >= DateTime.UtcNow)
+                 .Where(s => s.StartTime >= DateTime.UtcNow)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -46,14 +43,12 @@ namespace Multikino.Services
                     s.Hall.Name.ToLower().Contains(lowered));
             }
 
-            // Projekcja pomocnicza — dodajemy pole Free, które EF potrafi przetłumaczyć: subquery Count(...) na Tickets
             var projected = baseQuery.Select(s => new
             {
                 Screening = s,
                 Free = s.Hall.Capacity - _db.Tickets.Count(t => t.ScreeningId == s.Id) // translatowalne do SQL
             });
 
-            // Sortowanie na podstawie sortOrder
             projected = sortOrder switch
             {
                 "date_desc" => projected.OrderByDescending(p => p.Screening.StartTime),
@@ -62,29 +57,23 @@ namespace Multikino.Services
                 "hall" => projected.OrderBy(p => p.Screening.Hall.Name),
                 "hall_desc" => projected.OrderByDescending(p => p.Screening.Hall.Name),
 
-                // language
-                "language" => projected.OrderBy(p => p.Screening.Language),
+               "language" => projected.OrderBy(p => p.Screening.Language),
                 "language_desc" => projected.OrderByDescending(p => p.Screening.Language),
 
-                // is3d (proste bool ordering — EF przetłumaczy)
                 "is3d" => projected.OrderBy(p => p.Screening.Is3D),
                 "is3d_desc" => projected.OrderByDescending(p => p.Screening.Is3D),
 
-                // wolne miejsca
                 "free" => projected.OrderBy(p => p.Free),
                 "free_desc" => projected.OrderByDescending(p => p.Free),
 
-                // domyślnie data rosnąco
                 _ => projected.OrderBy(p => p.Screening.StartTime)
             };
 
-            // Pobieramy listę Screening'ów (wyciągamy z projekcji)
-            var list = await projected.Select(p => p.Screening).ToListAsync();
+             var list = await projected.Select(p => p.Screening).ToListAsync();
 
             return list;
         }
 
-        // Dodaj tę metodę w TicketService (przeciążenie)
         public async Task<IEnumerable<Ticket>> GetTicketsForUserAsync(int userId, string? search = null, string? sortOrder = null)
         {
             var q = _db.Tickets
@@ -120,7 +109,6 @@ namespace Multikino.Services
                 "ticket_sold_date" => q.OrderBy(t => t.SoldAt),
                 "ticket_sold_date_desc" => q.OrderByDescending(t => t.SoldAt),
 
-                // default: sold date desc (ostatnio kupione na górze)
                 _ => q.OrderByDescending(t => t.SoldAt)
             };
 

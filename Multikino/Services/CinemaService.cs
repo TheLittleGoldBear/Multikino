@@ -36,8 +36,8 @@ namespace Multikino.Services
         public async Task<Movie?> GetMovieWithScreeningsAsync(int movieId)
         {
             return await _context.Movies
-                .Include(m => m.Screenings)        // powiązane seanse
-                    .ThenInclude(s => s.Hall)      // plakaty
+                .Include(m => m.Screenings)
+                    .ThenInclude(s => s.Hall)
                 .FirstOrDefaultAsync(m => m.Id == movieId);
         }
 
@@ -61,14 +61,12 @@ namespace Multikino.Services
 
         public async Task<bool> ReserveTicketAsync(int screeningId,  int? userId = null)
         {
-            // sprawdzamy czy miejsce jest wolne
             bool taken = await _context.Tickets
                 .AnyAsync(t => t.ScreeningId == screeningId );
 
             if (taken)
                 return false;
 
-            // pobieramy seans (żeby mieć cenę bazową z filmu)
             var screening = await _context.Screenings
                 .Include(s => s.Movie)
                 .FirstOrDefaultAsync(s => s.Id == screeningId);

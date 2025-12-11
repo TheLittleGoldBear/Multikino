@@ -129,8 +129,6 @@ namespace Multikino.Services
             return true;
         }
 
-        // ================== SCREENINGS ==================
-
         public async Task<List<Screening>> GetScreeningsAsync(string? search = null, string? sortOrder = null)
         {
             IQueryable<Screening> query = _context.Screenings
@@ -157,7 +155,6 @@ namespace Multikino.Services
 
             return await query.ToListAsync();
         }
-
 
         public async Task<Screening?> GetScreeningAsync(int id)
         {
@@ -201,31 +198,20 @@ namespace Multikino.Services
 
         public async Task<IEnumerable<TicketSalesReportItem>> GetTicketSalesReportAsync(DateTime from, DateTime to)
         {
-            // normalizujemy do zakresu UTC (przyjmujemy że SoldAt jest w UTC — dopasuj jeżeli inaczej)
             var fromUtc = from.ToUniversalTime();
             var toUtc = to.ToUniversalTime();
 
-            // Grupuj po dacie sprzedaży (dniu) i sumuj
-            var q = _context.Tickets
+           var q = _context.Tickets
                 .Where(t => t.SoldAt >= fromUtc && t.SoldAt <= toUtc)
                 .GroupBy(t => new { Day = EF.Functions.DateFromParts(t.SoldAt.Year, t.SoldAt.Month, t.SoldAt.Day) })
-                // NOTE: EF.Functions.DateFromParts nie jest dostępne we wszystkich providerach.
-                // zamiast tego bezpieczniej mapujemy do daty bez czasu po serii operacji:
-                .Select(g => new TicketSalesReportItem
+                  .Select(g => new TicketSalesReportItem
                 {
-                    Date = g.Min(t => t.SoldAt).Date, // dzień (UTC)
+                    Date = g.Min(t => t.SoldAt).Date,
                     TicketsSold = g.Count(),
                     Revenue = g.Sum(t => t.Price)
                 });
 
-            // Jeśli twoja baza/EF nie tłumaczy DateFromParts, użyj:
-            // var q = _db.Tickets
-            //     .Where(t => t.SoldAt >= fromUtc && t.SoldAt <= toUtc)
-            //     .AsEnumerable()
-            //     .GroupBy(t => t.SoldAt.ToUniversalTime().Date)
-            //     .Select(g => new TicketSalesReportItem { Date = g.Key, TicketsSold = g.Count(), Revenue = g.Sum(x=>x.Price) });
-
-            return await q.OrderBy(i => i.Date).ToListAsync();
+             return await q.OrderBy(i => i.Date).ToListAsync();
         }
 
         public async Task<IEnumerable<RevenueByMovieItem>> GetRevenueByMovieAsync(DateTime from, DateTime to)
